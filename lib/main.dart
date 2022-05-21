@@ -36,82 +36,109 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFf9f9f9),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFf9f9f9),
-        elevation: 0.0,
-        title: const Text(
-          "Weather App",
-          style: TextStyle(color: Colors.black),
+      body: Stack(children: <Widget>[
+        Positioned.fill(
+          child: Image(
+            image: AssetImage(isDay()),
+            fit: BoxFit.cover,
+          ),
         ),
-        centerTitle: true,
-      ),
-      body: FutureBuilder(
-        future: getData(cityName),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.all(20.0),
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: "Search City",
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 18.0,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5.0),
+        FutureBuilder(
+          future: getData(cityName),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.only(top: 40.0),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: "Search City",
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 18.0,
                         ),
-                        borderSide: BorderSide.none,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5.0),
+                          ),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Color(0xdd212121),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Color(0xdd212121),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                      onSubmitted: (String value) {
+                        cityName = value;
+                        setState(() {});
+                      },
                     ),
-                    onSubmitted: (String value) {
-                      cityName = value;
-                      setState(() {});
-                    },
                   ),
-                ),
-                currentWeather(Icons.wb_sunny_rounded, "${data!.temp}",
-                    "${data!.cityName}"),
-                const SizedBox(
-                  height: 60,
-                ),
-                const Text(
-                  "Additonal Info",
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xdd212121),
+                  currentWeather(getWeatherIcon(data!.id), "${data!.temp}",
+                      "${data!.cityName}", "${data!.description}"),
+                  const SizedBox(
+                    height: 60,
                   ),
-                ),
-                const Divider(),
-                const SizedBox(
-                  height: 20,
-                ),
-                additionalInfo("${data!.wind}", "3${data!.humidity}",
-                    "${data!.pressure}", "${data!.feelsLike}"),
-              ],
-            );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            return const Center(
-              child: Text("Error"),
-            );
-          }
-        },
-      ),
+                  const Text(
+                    "Additonal Info",
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const Divider(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  additionalInfo("${data!.wind}", "3${data!.humidity}",
+                      "${data!.pressure}", "${data!.feelsLike}"),
+                ],
+              );
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return const Center(
+                child: Text("Error"),
+              );
+            }
+          },
+        ),
+      ]),
     );
+  }
+}
+
+String isDay() {
+  var hour = DateTime.now().hour;
+  if (hour < 12) {
+    return 'assets/day.png';
+  }
+  return 'assets/night.jpg';
+}
+
+IconData getWeatherIcon(int? condition) {
+  if (condition! < 300) {
+    return Icons.cloudy_snowing;
+  } else if (condition < 400) {
+    return Icons.cloudy_snowing;
+  } else if (condition < 600) {
+    return Icons.ac_unit;
+  } else if (condition < 700) {
+    return Icons.snowing;
+  } else if (condition < 800) {
+    return Icons.foggy;
+  } else if (condition == 800) {
+    return Icons.wb_sunny;
+  } else if (condition <= 804) {
+    return Icons.cloud;
+  } else {
+    return Icons.wb_sunny;
   }
 }
